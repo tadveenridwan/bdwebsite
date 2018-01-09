@@ -48,7 +48,7 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-//Getting the index/home page
+//getting the index/home page
 app.get('/', function(req, res, next) {
     res.render('index',
     { 
@@ -58,8 +58,7 @@ app.get('/', function(req, res, next) {
 });
 
 
-//showing contactform/Message page
-
+//getting contactform/Message page
 app.get('/contactform', function(req, res, next) {
     res.render('contactform',
         {
@@ -87,7 +86,7 @@ app.post('/contactform', function(req, res, next) {
 
 
 
-//Showing about us page
+//getting about us page
 app.get('/aboutus', function(req, res, next) {
     res.render('aboutus',
     { 
@@ -97,17 +96,52 @@ app.get('/aboutus', function(req, res, next) {
 });
 
 
+//getting schedule page
+app.get('/schedule', function(req, res, next) {
+    var queryName = 'SELECT * FROM schedule';
+    database.query(queryName,function(err, result) {
+        console.log(result);
+        //res.send(result);
+        res.render('scheduling',
+            {
+                partials: {header: 'mastertemplate/header',footer: 'mastertemplate/footer'} ,
+                user : req.user,
+                result : result
+            });
+    });
+});
 
+app.get('/getAllUserList', function(req, res) {
+    var queryName = 'SELECT username,fname FROM employee';
+    database.query(queryName,function(err, result) {
+        //return result;
+        console.log(result);
+        res.send(result);
+        //return JSON.stringify(result);
+    });
+});
 
+app.post('/postscheduling', function(req, res) {
+    schedulingAction.addSchedule(req, res);
+});
 
+app.get('/getSingleSchedule', function(req, res) {
+    console.log(req.query.search);
+    var queryName = 'SELECT * FROM schedule WHERE id = "'+ req.query.search +'"';
+    database.query(queryName,function(err, result) {
+        res.send(result[0]);
+    });
+});
 
+app.get('/postSingleSchedule', function(req, res) {
+    console.log("req.query");
+    var queryName = 'UPDATE schedule SET start="'+ req.query.formDate +'",end="'+ req.query.toDate +'",person="'+ req.query.rePerson +'" WHERE id = "'+ req.query.id +'"';
+    database.query(queryName,function(err, result) {
+        res.send("updated");
+    });
+});
 
-
-
-
-
-
-//showing websocket/socket.io page
+//getting websocket/socket.io page
 app.get('/websocket', isMemberAuthenticated, function(req, res){
     res.render('websocket',
         {
