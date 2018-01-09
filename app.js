@@ -58,6 +58,25 @@ app.get('/', function(req, res, next) {
 });
 
 
+//showing contactform/Message page
+
+app.get('/contactform', function(req, res, next) {
+    res.render('contactform',
+        {
+            partials: {header: 'mastertemplate/header',footer: 'mastertemplate/footer'} ,
+            user : req.user
+        });
+});
+
+app.post('/contactform', function(req, res, next) {
+    // debugging purpose console.log("Ridwan" + req.body.Name);
+    console.log(req.body.email);
+    console.log(req.body.Subject);
+    console.log(req.body.Message);
+    employeeAction.addContactUsForm(req, res);
+});
+
+
 
 
 
