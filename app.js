@@ -18,15 +18,74 @@ var LocalStrategy = require('passport-local').Strategy;
 var database = require('./db');
 var action = require('./db/action');
 
+var employeeAction = require('./db/employeeAction');
 
+// The local strategy require a `verify` function which receives the credentials
+// (`username` and `password`) submitted by the user.  The function must verify
+// that the password is correct and then invoke callback `cb` with a user object, which
+// will be set at `req.user` in route handlers after authentication.
 
+passport.use('StudentSignIn-local',new LocalStrategy({
+  usernameField: 'username',
+  passwordField: 'password',
+  passReqToCallback: true, },
+    function(req, username, password, cb ) {
+      employeeAction.findByUsername(username, function( err, user) {
+        if (err) { return cb(err); }
+        if (!user) { 
+         return cb(null, false, req.flash('username','Invalid username')); 
+       }
+        if (user.password != password) { 
+         return cb(null, false, req.flash('password','Wrong password'));
+          }
+        return cb(null, user);
+      });
+    }));
+passport.use('MemberSignIn-local',new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password',
+  passReqToCallback: true, },
+    function(req, email, password, cb ) {
+      employerAction.findByEmail(email, function( err, user) {
+        if (err) { return cb(err); }
+        if (!user) { 
+         return cb(null, false, req.flash('email','Invalid email address')); 
+       }
+        if (user.password != password) { 
+         return cb(null, false, req.flash('password','Wrong password'));
+          }
+        return cb(null, user);
+      });
+    }));
 
+// Configure Passport authenticated session persistence.
+//
+// In order to restore authentication state across HTTP requests, Passport needs
+// to serialize users into and deserialize users out of the session.  The
+// typical implementation of this is as simple as supplying the user ID when
+// serializing, and querying the user record by ID from the database when
+// deserializing.
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
 
+passport.deserializeUser(function(user, cb) {
 
-
-
-
-
+if (user.fname) {
+    // serialize user
+    employeeAction.findById(user.id, function (err, user) {
+    if (err) { return cb(err); }
+    cb(null, user);
+  });
+  }
+if (user.aEmail) {
+    // serialize user
+    employerAction.findById(user.id, function (err, user) {
+    if (err) { return cb(err); }
+    cb(null, user);
+  });
+}
+});
 
 var app = express();
 
@@ -76,11 +135,100 @@ app.post('/contactform', function(req, res, next) {
 });
 
 
+//Member registration
+
+app.post('/memberRegistration', function(req, res, next) {
+
+    req.checkBody('password', 'Password is too short. Minimum size is 8.').notEmpty().isLength({min:8});
+    req.checkBody('confirmPassword', 'Confirm password does not match with password').equals(req.body.password);
+    var errors = req.validationErrors();
+
+    console.log(errors);
+    if (errors) {
+
+        console.log(req.body);
+        // req.flash( 'formdata',req.body); // load form data into flash
+        req.flash('errors', errors);
+        res.redirect('/contactus');
+        // return done(null, false, req.flash('formdata', req.body));
+    }
+    else
+    {
+        employerAction.findEmployerEmail(req, res);
+        // employerAction.findEmployerEmail(req, res);
+    }
+
+});
+
+// Student Registration page showing
+
+app.get('/contactus', function(req, res, next) {
+    res.render('contactus',
+    { 
+            partials: {header: 'mastertemplate/header',footer: 'mastertemplate/footer'} 
+        });
+});
+// StudentRegistration verification and post
+
+app.post('/employeeRegistration', function(req, res, next) {
+
+    req.checkBody('password', 'Password is too short. Minimum size is 8.').notEmpty().isLength({min:8});
+    req.checkBody('rePassword', 'Confirm password is too short. Minimum size is 8.').isLength({min:8});
+    req.checkBody('rePassword', 'Confirm password does not match with password').equals(req.body.password);
+    var errors = req.validationErrors();
+
+    console.log(errors);
+    if (errors) {
+            
+            console.log(req.body);
+            // req.flash( 'formdata',req.body); // load form data into flash
+            req.flash('errors', errors);
+           res.redirect('/contactus');
+            // return done(null, false, req.flash('formdata', req.body));
+    }
+    else
+    {
+      employeeAction.findEmployeeName(req, res);
+      // employeeAction.findEmployeeEmail(req, res);
+    }
+});
 
 
+//Student signin page 
+
+app.get('/employeesign', function(req, res, next) {
+    res.render('employeesign',
+    { 
+            partials: {header: 'mastertemplate/header',footer: 'mastertemplate/footer'} 
+        });
+});
+
+//Student authentication check
+
+app.post('/employeesign',
+    passport.authenticate('EmployeeSignIn-local',{ 
+      failureRedirect: '/employeesign' ,
+      successRedirect: '/',
+      failureFlash: true
+    })
+);
 
 
+//Checking Student authentication
 
+function isEmployeeAuthenticated(req, res, next) {
+    if (req.user.username)
+        return next();
+    res.redirect('/');
+}
+
+//Logging out 
+
+app.get('/logout', function(req, res){
+  console.log(req.user);
+  req.logout();
+  res.redirect('/');
+});
 
 
 
