@@ -85,11 +85,11 @@ If you are planning to arrive in Kiel and seeking for further information please
 and we will get back to you soon asap!
 <div style="height:20px"></div>
     <form action="contactform" method="post">
-<div style="height:30px;"><input class="input_txt2" placeholder="Last Name" name="firstname" type="text" /></div><div style="height:10px"></div>
-<div style="height:30px;"><input class="input_txt2" placeholder="First Name" name="lastname" type="text" /></div><div style="height:10px"></div>
-<div style="height:30px;"><input class="input_txt2" placeholder="E-mail" name="email" type="text" /></div><div style="height:10px"></div>
-<div style="height:30px;"><input class="input_txt2" placeholder="Subject" name="subject" type="text" /></div><div style="height:10px"></div>
-<div><textarea class="text_area2" cols="32" rows="3" name="message" placeholder = "Message"></textarea></div>
+<div style="height:30px;"><input class="input_txt2" placeholder="Last Name" name="firstname" type="text" required /></div><div style="height:10px"></div>
+<div style="height:30px;"><input class="input_txt2" placeholder="First Name" name="lastname" type="text" required /></div><div style="height:10px"></div>
+<div style="height:30px;"><input class="input_txt2" placeholder="E-mail" name="email" type="text" required /></div><div style="height:10px"></div>
+<div style="height:30px;"><input class="input_txt2" placeholder="Subject" name="subject" type="text" required /></div><div style="height:10px"></div>
+<div><textarea class="text_area2" cols="32" rows="3" name="message" placeholder = "Message" required></textarea></div>
 <div style="height:10px;"></div>
     <div style="height:28px;">
 <input class="submit2" name="send" type="submit" value="Send" />
