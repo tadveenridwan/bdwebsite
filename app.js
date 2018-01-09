@@ -19,6 +19,7 @@ var database = require('./db');
 var action = require('./db/action');
 
 var employeeAction = require('./db/employeeAction');
+var schedulingAction = require('./db/schedulingAction');
 
 // The local strategy require a `verify` function which receives the credentials
 // (`username` and `password`) submitted by the user.  The function must verify
